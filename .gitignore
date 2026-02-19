@@ -1,5 +1,6 @@
 .venv
 HAM*/
+ham*/
 *.npz
 *.pth
 dataset/
