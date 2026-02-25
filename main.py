@@ -10,7 +10,7 @@ from keras.losses import CategoricalCrossentropy
 from keras.utils import to_categorical
 from keras.optimizers.schedules import CosineDecay
 from keras.optimizers import AdamW
-from keras.applications import EfficientNetV2B0
+from keras.applications import EfficientNetV2B0, VGG16, Xception, MobileNetV2, DenseNet121, ConvNeXtTiny
 from sklearn.model_selection import train_test_split
 
 from helper_functions import *
@@ -28,23 +28,26 @@ class_mapping = {
 
 if __name__ == "__main__":
     
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="main.py")
     parser.add_argument("--size", default=224, type=int)
-    parser.add_argument("--load_dataset", action="store_true")
+    parser.add_argument("--make_dataset", action="store_true")
     parser.add_argument("--learning_rate", default=1e-4, type=float)
     parser.add_argument("--patience", default=50, type=int)
     parser.add_argument("--epochs", default=500, type=int)
     parser.add_argument("--output_name", default="trained_model.pth", type=str)
+    parser.add_argument("--model", choices=["EfficientNetV2B0", "VGG16", "Xception", "MobileNetV2", "DenseNet121", "ConvNeXtTiny"])
     args = parser.parse_args()
 
     df = pd.read_csv('HAM10000_metadata.csv')
     dict_label = {k:v for k,v in zip(list(class_mapping.keys()), range(7))}
 
-    if args.load_dataset == True:
+    if args.make_dataset == True:
+        print("Making the dataset...")
         X, y = array_from_images('dataset/', df, dict_label, h=args.size, w=args.size)
         np.savez_compressed(f'X-{args.size}x{args.size}', X, allow_pickle=True)
         np.savez_compressed(f'y-{args.size}x{args.size}', y, allow_pickle=True)
 
+    print("Loading the dataset...")
     X = np.load(f'X-{args.size}x{args.size}.npz')['arr_0']
     y = np.load(f'y-{args.size}x{args.size}.npz')['arr_0']
 
@@ -59,13 +62,56 @@ if __name__ == "__main__":
     y_val = to_categorical(y_val, num_classes=7)
     y_test = to_categorical(y_test, num_classes=7)
 
-    effnet = EfficientNetV2B0(
-        include_top=True,
-        input_shape=X_train.shape[1:],
-        weights=None,
-        classes=7,
-        classifier_activation="softmax",
-    )
+
+    match args.model:
+        case "EfficientNetV2B0":
+            model = EfficientNetV2B0(
+                include_top=True,
+                input_shape=X_train.shape[1:],
+                weights=None,
+                classes=7,
+                classifier_activation="softmax",
+            )
+        case "VGG16":
+            model = VGG16(
+                include_top=True,
+                input_shape=X_train.shape[1:],
+                weights=None,
+                classes=7,
+                classifier_activation="softmax",
+            )
+        case "Xception":
+            model = Xception(
+                include_top=True,
+                input_shape=X_train.shape[1:],
+                weights=None,
+                classes=7,
+                classifier_activation="softmax",
+            )
+        case "MobileNetV2":
+            model = MobileNetV2(
+                include_top=True,
+                input_shape=X_train.shape[1:],
+                weights=None,
+                classes=7,
+                classifier_activation="softmax",
+            )
+        case "DenseNet121":
+            model = DenseNet121(
+                include_top=True,
+                input_shape=X_train.shape[1:],
+                weights=None,
+                classes=7,
+                classifier_activation="softmax",
+            )
+        case "ConvNeXtTiny":
+            model = ConvNeXtTiny(
+                include_top=True,
+                input_shape=X_train.shape[1:],
+                weights=None,
+                classes=7,
+                classifier_activation="softmax",
+            )
 
     preproc = Sequential([
         RandomFlip(),
@@ -78,7 +124,7 @@ if __name__ == "__main__":
         Input(shape=(X_train.shape[1:])),
         Rescaling(scale=1./255),
         preproc,
-        effnet, 
+        model, 
     ])
 
     lr_schedule = CosineDecay(initial_learning_rate=1e-4, decay_steps=500, alpha=0.1) 
