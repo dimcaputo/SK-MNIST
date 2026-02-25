@@ -74,7 +74,7 @@ def get_analysis_cat(model, testX, testy):
     print(classification_report(testy,resy))
     return predy, resy
 
-def compile_and_train(model, loss, opt, metrics, epochs, patience=None, steps=None, class_weight=None):
+def compile_and_train(model, train_data, val_data, loss, opt, metrics, epochs, patience=None, steps=None, class_weight=None):
     model.compile(loss=loss,
                 optimizer=opt,
                 metrics=metrics)
@@ -83,20 +83,20 @@ def compile_and_train(model, loss, opt, metrics, epochs, patience=None, steps=No
 
     if patience != None:
         model.fit(
-            X_train,
-            y_train,
+            train_data[0],
+            train_data[1],
             epochs=epochs,
-            validation_data=(X_val, y_val),
+            validation_data=(val_data[0], val_data[1]),
             callbacks=[get_earlystopping(patience)],
             steps_per_epoch=steps,
             class_weight=class_weight
             )
     else:
         model.fit(
-            X_train,
-            y_train,
+            train_data[0],
+            train_data[1],
             epochs=epochs,
-            validation_data=(X_val, y_val),
+            validation_data=(val_data[0], val_data[1]),
             steps_per_epoch=steps,
             class_weight=class_weight
             )

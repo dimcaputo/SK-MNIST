@@ -84,14 +84,17 @@ if __name__ == "__main__":
     lr_schedule = CosineDecay(initial_learning_rate=1e-4, decay_steps=500, alpha=0.1) 
     optimizer = AdamW(learning_rate=lr_schedule, weight_decay=0.01)
 
-    history020 = compile_and_train(model,
-                                loss=CategoricalCrossentropy(),
-                                opt=optimizer,
-                                metrics=[F1Score(average='macro')],
-                                epochs=args.epochs,
-                                patience=args.patience, 
-                                class_weight=class_weights
-                    )
+    history020 = compile_and_train(
+        model,
+        train_data=(X_train, y_train),
+        val_data = (X_val, y_val),
+        loss=CategoricalCrossentropy(),
+        opt=optimizer,
+        metrics=[F1Score(average='macro')],
+        epochs=args.epochs,
+        patience=args.patience, 
+        class_weight=class_weights
+    )
 
     try:
         pred, res = get_analysis_cat(model, X_test, y_test)
