@@ -4,3 +4,4 @@ ham*/
 *.npz
 *.pth
 dataset/
+__pycache__/
