@@ -1,5 +1,3 @@
-import warnings
-warnings.filterwarnings('ignore')
 import os
 os.environ["KERAS_BACKEND"] = "torch"
 import pandas as pd
@@ -28,7 +26,7 @@ class_mapping = {
         "vasc": "nocanc"
     }
 
-if __name__ == "_main__":
+if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--size", default=224, type=int)
