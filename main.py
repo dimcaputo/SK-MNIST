@@ -10,7 +10,7 @@ from keras.losses import CategoricalCrossentropy
 from keras.utils import to_categorical
 from keras.optimizers.schedules import CosineDecay
 from keras.optimizers import AdamW
-from keras.applications import EfficientNetV2B0, VGG16, Xception, MobileNetV2, DenseNet121, ConvNeXtTiny
+from keras.applications import EfficientNetV2B0, VGG16, Xception, MobileNetV2, DenseNet121, ConvNeXtTiny, NASNetMobile
 from sklearn.model_selection import train_test_split
 
 from helper_functions import *
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--patience", default=50, type=int)
     parser.add_argument("--epochs", default=500, type=int)
     parser.add_argument("--output_name", default="trained_model.pth", type=str)
-    parser.add_argument("--model", choices=["EfficientNetV2B0", "VGG16", "Xception", "MobileNetV2", "DenseNet121", "ConvNeXtTiny"])
+    parser.add_argument("--model", choices=["EfficientNetV2B0", "VGG16", "Xception", "MobileNetV2", "DenseNet121", "ConvNeXtTiny", "NASNetMobile"])
     args = parser.parse_args()
 
     df = pd.read_csv('HAM10000_metadata.csv')
@@ -62,56 +62,13 @@ if __name__ == "__main__":
     y_val = to_categorical(y_val, num_classes=7)
     y_test = to_categorical(y_test, num_classes=7)
 
-
-    match args.model:
-        case "EfficientNetV2B0":
-            model = EfficientNetV2B0(
-                include_top=True,
-                input_shape=X_train.shape[1:],
-                weights=None,
-                classes=7,
-                classifier_activation="softmax",
-            )
-        case "VGG16":
-            model = VGG16(
-                include_top=True,
-                input_shape=X_train.shape[1:],
-                weights=None,
-                classes=7,
-                classifier_activation="softmax",
-            )
-        case "Xception":
-            model = Xception(
-                include_top=True,
-                input_shape=X_train.shape[1:],
-                weights=None,
-                classes=7,
-                classifier_activation="softmax",
-            )
-        case "MobileNetV2":
-            model = MobileNetV2(
-                include_top=True,
-                input_shape=X_train.shape[1:],
-                weights=None,
-                classes=7,
-                classifier_activation="softmax",
-            )
-        case "DenseNet121":
-            model = DenseNet121(
-                include_top=True,
-                input_shape=X_train.shape[1:],
-                weights=None,
-                classes=7,
-                classifier_activation="softmax",
-            )
-        case "ConvNeXtTiny":
-            model = ConvNeXtTiny(
-                include_top=True,
-                input_shape=X_train.shape[1:],
-                weights=None,
-                classes=7,
-                classifier_activation="softmax",
-            )
+    model = eval(args.model)(
+        include_top=True,
+        input_shape=X_train.shape[1:],
+        weights=None,
+        classes=7,
+        classifier_activation="softmax",
+    )
 
     preproc = Sequential([
         RandomFlip(),
